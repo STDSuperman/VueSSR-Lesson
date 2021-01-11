@@ -1,6 +1,6 @@
 <template>
     <div id='app'>
-        9999
+        <h1>这里是服务端渲染</h1>
         <router-view></router-view>
     </div>
 </template>
