@@ -1,5 +1,8 @@
 <template>
-    <div id='app'></div>
+    <div id='app'>
+        9999
+        <router-view></router-view>
+    </div>
 </template>
 
 <script>

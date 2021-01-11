@@ -1,5 +1,5 @@
-import { createApp } from './src/app';
+import createApp from '@/app.js';
 
-const { app } = createApp();
+const { app, router } = createApp();
 
 app.$mount('#app');

@@ -1,8 +1,8 @@
 const VueSSRClientPlugin = require('vue-server-renderer/client-plugin');
-const webpack = require('webpack');
 const webpackMerge = require('webpack-merge');
 const baseConfig = require('./webpack.base.config');
 const path = require('path')
+const TerserPlugin = require("terser-webpack-plugin");
 
 module.exports = webpackMerge.merge(baseConfig, {
     entry: path.resolve(__dirname, '../entry-client.js'),
@@ -15,7 +15,9 @@ module.exports = webpackMerge.merge(baseConfig, {
                     reuseExistingChunk: true
                 }
             }
-        }
+        },
+        minimize: true,
+        minimizer: [new TerserPlugin()]
     },
     plugins: [
         new VueSSRClientPlugin()

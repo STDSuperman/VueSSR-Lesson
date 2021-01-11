@@ -4,7 +4,7 @@ const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
-    mode: 'production',
+    mode: 'development',
     module: {
         rules: [
             { test: /\.js$/, loader: 'babel-loader' },
@@ -15,12 +15,12 @@ module.exports = {
     },
     plugins: [
         new VueLoaderPlugin(),
-        new MiniCssExtractPlugin({
-            filename: 'css/[name].[contenthash:8].css'
-        })
+        // new MiniCssExtractPlugin({
+        //     filename: 'css/[name].[contenthash:8].css'
+        // })
     ],
     resolve: {
-        extensions: ['.vue', '.js'],
+        extensions: ['.vue', '.ts', '.js'],
         alias: {
             '@': path.resolve(__dirname, '../src')
         }

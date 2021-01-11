@@ -1,4 +1,4 @@
-import { createApp } from './src/app';
+import createApp from '@/app.js';
 
 export default content => {
     const { app } = createApp();
