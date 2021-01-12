@@ -2,6 +2,7 @@
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const webpack = require('webpack')
 
 module.exports = {
     mode: 'development',
@@ -15,10 +16,14 @@ module.exports = {
     },
     plugins: [
         new VueLoaderPlugin(),
-        // new MiniCssExtractPlugin({
-        //     filename: 'css/[name].[contenthash:8].css'
-        // })
+        new MiniCssExtractPlugin({
+            filename: 'css/[name].[contenthash:8].css'
+        }),
+        new webpack.NoEmitOnErrorsPlugin()
     ],
+    stats: {
+        logging: 'none'
+    },
     resolve: {
         extensions: ['.vue', '.ts', '.js'],
         alias: {

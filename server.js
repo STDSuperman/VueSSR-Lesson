@@ -14,10 +14,10 @@ const serverWebpackConfig = require('./build/webpack.server.config')
 const clientCompiler = webpack(clientWebpackConfig);
 const serverCompiler = webpack(serverWebpackConfig);
 
+app.use(WebpackHotMiddleware(clientCompiler, { log: false }));
+app.use(WebpackHotMiddleware(serverCompiler, { log: false }));
 app.use(WebpackDevMiddleware(clientCompiler, { serverSideRender: true }));
-app.use(WebpackHotMiddleware(clientCompiler));
 app.use(WebpackDevMiddleware(serverCompiler, { serverSideRender: true }));
-app.use(WebpackHotMiddleware(serverCompiler));
 
 app.use(express.static(path.resolve(__dirname, './dist')))
 

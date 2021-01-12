@@ -3,9 +3,12 @@ const webpackMerge = require('webpack-merge');
 const baseConfig = require('./webpack.base.config');
 const path = require('path')
 const TerserPlugin = require("terser-webpack-plugin");
+const webpack = require('webpack')
+
+const hotModuleScript = 'webpack-hot-middleware/client?path=/__webpack_hmr&timeout=10000&reload=true'
 
 module.exports = webpackMerge.merge(baseConfig, {
-    entry: path.resolve(__dirname, '../entry-client.js'),
+    entry: [hotModuleScript, path.resolve(__dirname, '../entry-client.js')],
     optimization: {
         splitChunks: {
             cacheGroups: {
@@ -20,6 +23,7 @@ module.exports = webpackMerge.merge(baseConfig, {
         minimizer: [new TerserPlugin()]
     },
     plugins: [
-        new VueSSRClientPlugin()
+        new VueSSRClientPlugin(),
+        new webpack.HotModuleReplacementPlugin()
     ]
 })
