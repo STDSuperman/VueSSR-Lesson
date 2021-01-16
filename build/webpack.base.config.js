@@ -14,6 +14,9 @@ module.exports = {
             { test: /\.vue$/, loader: 'vue-loader' },
         ]
     },
+    output: {
+        path: path.resolve(__dirname, '../dist')
+    },
     plugins: [
         new VueLoaderPlugin(),
         new MiniCssExtractPlugin({

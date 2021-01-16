@@ -7,36 +7,62 @@ const fs = require('fs');
 const template = fs.readFileSync('./index.html', 'utf-8')
 const path = require('path');
 const webpack = require('webpack');
+let clientManifest = require(path.resolve(__dirname, 'dist', 'vue-ssr-client-manifest.json'));
+let serverBundle = require(path.resolve(__dirname, 'dist', 'vue-ssr-server-bundle.json'));
 const WebpackDevMiddleware = require('webpack-dev-middleware');
 const WebpackHotMiddleware = require('webpack-hot-middleware');
 const clientWebpackConfig = require('./build/webpack.client.config');
 const serverWebpackConfig = require('./build/webpack.server.config')
 const clientCompiler = webpack(clientWebpackConfig);
 const serverCompiler = webpack(serverWebpackConfig);
+let renderer = {};
+let buildCount = 0;
+
+// 客户端构建
+const clientMiddleware = WebpackDevMiddleware(clientCompiler)
+app.use(clientMiddleware);
+
+clientCompiler.hooks.done.tap('compilerDone', () => {
+    console.log('客户端构建完成')
+    clientManifest = JSON.parse(clientMiddleware.context.outputFileSystem.readFileSync(path.join(clientWebpackConfig.output.path, 'vue-ssr-client-manifest.json')).toString())
+    runBuildRenderer();
+})
+
+// 服务端构建
+const serverMiddleware = WebpackDevMiddleware(serverCompiler)
+app.use(serverMiddleware);
+serverCompiler.hooks.done.tap('compilerDone', () => {
+    console.log('服务端构建完成')
+    serverBundle = JSON.parse(serverMiddleware.context.outputFileSystem.readFileSync(path.join(clientWebpackConfig.output.path, 'vue-ssr-server-bundle.json')).toString())
+    runBuildRenderer();
+})
+
+function runBuildRenderer(init = false) {
+    buildCount++;
+    if (!init && buildCount < 2) return;
+    if (clientManifest && serverBundle) {
+        buildCount = 0;
+        console.log('新的renderer已产生')
+        renderer = createBundleRenderer(serverBundle, {
+            template,
+            clientManifest,
+            runInNewContext: false
+        })
+    }
+}
 
 app.use(WebpackHotMiddleware(clientCompiler, { log: false }));
-app.use(WebpackHotMiddleware(serverCompiler, { log: false }));
-app.use(WebpackDevMiddleware(clientCompiler, { serverSideRender: true }));
-app.use(WebpackDevMiddleware(serverCompiler, { serverSideRender: true }));
 
 app.use(express.static(path.resolve(__dirname, './dist')))
 
-router.get('/', (req, res) => {
-    const { devMiddleware } = res.locals.webpack;
-    const { outputPath } = devMiddleware.stats.toJson();
-    const clientManifest = require(path.resolve(outputPath, 'vue-ssr-client-manifest.json'));
-    const serverBundle = require(path.resolve(outputPath, 'vue-ssr-server-bundle.json'));
-    const context = {};
-    createBundleRenderer(serverBundle, {
-        template,
-        clientManifest,
-        runInNewContext: false
-    }).renderToString(context)
-    .then(html => res.send(html))
-    .catch(err => {
-        console.log(chalk.red(err));
-        res.send('服务器异常');
-    });
+runBuildRenderer(true);
+
+router.get('*', (req, res) => {
+    const context = { url: req.url };
+    renderer.renderToString(context, (err, html) => {
+        if (err) res.send(err);
+        res.send(html);
+    })
 })
 
 app.use(router);
