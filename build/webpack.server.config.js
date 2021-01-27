@@ -3,7 +3,6 @@ const baseConfig = require('./webpack.base.config');
 const path = require('path');
 const VueSSRServerPlugin = require('vue-server-renderer/server-plugin')
 const nodeExternals = require('webpack-node-externals')
-const hotModuleScript = 'webpack-hot-middleware/server?path=/__webpack_hmr&timeout=20000'
 
 module.exports = webpackMerge.merge(baseConfig, {
     entry: path.resolve(__dirname, '../entry-server.js'),
