@@ -11,13 +11,14 @@ let serverBundle = require(path.resolve(__dirname, '../dist', 'vue-ssr-server-bu
 
 app.use(express.static(path.resolve(__dirname, '../dist')));
 
+const renderer = createBundleRenderer(serverBundle, {
+    template,
+    clientManifest,
+    runInNewContext: false
+});
+
 router.get('*', (req, res) => {
     const context = { url: req.url };
-    const renderer = createBundleRenderer(serverBundle, {
-        template,
-        clientManifest,
-        runInNewContext: false
-    });
     renderer.renderToString(context, (err, html) => {
         if (err) {
             if (err.code === 404) {
